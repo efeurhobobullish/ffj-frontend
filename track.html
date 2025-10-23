@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Track Order - FFJ Eatery</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{background:#f9fafb;font-family:sans-serif;}</style>
+</head>
+<body>
+<main class="p-6 text-center">
+<h2 class="text-2xl font-bold mb-4">Live Order Tracking</h2>
+<div id="map" class="w-full h-96 bg-gray-300 rounded"></div>
+<p id="status" class="mt-4 text-gray-700"></p>
+</main>
+<script src="http://localhost:4000/socket.io/socket.io.js"></script>
+<script>
+const orderId=new URLSearchParams(location.search).get("id");
+const socket=io("http://localhost:4000");
+socket.emit("joinOrder",{orderId});
+socket.on("riderLocation",d=>{
+document.getElementById("status").innerText=`Rider at: ${d.lat}, ${d.lng}`;
+});
+socket.on("orderStatus",d=>{
+document.getElementById("status").innerText=`Order status: ${d.status}`;
+});
+</script>
+</body>
+</html>
