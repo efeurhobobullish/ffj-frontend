@@ -4,24 +4,55 @@
 <meta charset="UTF-8">
 <title>Track Order - FFJ Eatery</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<style>body{background:#f9fafb;font-family:sans-serif;}</style>
+<style>
+body{font-family:sans-serif;background:#f9fafb;}
+#map{height:400px;width:100%;border-radius:10px;}
+</style>
 </head>
 <body>
+<nav class="flex justify-between items-center p-4 bg-green-600 text-white">
+  <h1 class="font-bold text-xl">FFJ Eatery</h1>
+  <a href="orders.html" class="underline">Back to Orders</a>
+</nav>
+
 <main class="p-6 text-center">
-<h2 class="text-2xl font-bold mb-4">Live Order Tracking</h2>
-<div id="map" class="w-full h-96 bg-gray-300 rounded"></div>
-<p id="status" class="mt-4 text-gray-700"></p>
+  <h2 class="text-2xl font-bold mb-4">Live Order Tracking</h2>
+  <div id="map"></div>
+  <p id="status" class="mt-4 text-gray-700"></p>
 </main>
+
+<!-- Socket.io + Google Maps -->
 <script src="http://localhost:4000/socket.io/socket.io.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
 <script>
-const orderId=new URLSearchParams(location.search).get("id");
-const socket=io("http://localhost:4000");
-socket.emit("joinOrder",{orderId});
-socket.on("riderLocation",d=>{
-document.getElementById("status").innerText=`Rider at: ${d.lat}, ${d.lng}`;
+const orderId = new URLSearchParams(location.search).get("id");
+const socket = io("http://localhost:4000");
+let map, marker;
+
+function initMap(lat=6.5244, lng=3.3792) { // Lagos default
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat, lng },
+    zoom: 14,
+  });
+  marker = new google.maps.Marker({
+    position: { lat, lng },
+    map,
+    title: "Rider",
+    icon: "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+  });
+}
+
+socket.on("connect", () => socket.emit("joinOrder", { orderId }));
+
+socket.on("riderLocation", data => {
+  if (!map) initMap(data.lat, data.lng);
+  marker.setPosition({ lat: data.lat, lng: data.lng });
+  map.panTo({ lat: data.lat, lng: data.lng });
+  document.getElementById("status").innerText = `📍 Rider at: ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}`;
 });
-socket.on("orderStatus",d=>{
-document.getElementById("status").innerText=`Order status: ${d.status}`;
+
+socket.on("orderStatus", d => {
+  document.getElementById("status").innerText = `🚚 Order status: ${d.status}`;
 });
 </script>
 </body>
