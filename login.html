@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login - FFJ Eatery</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<style>
+body{background:#f9fafb;font-family:sans-serif;}
+.btn{padding:8px 12px;border-radius:5px;width:100%;color:white;background:#16a34a;}
+.btn:hover{background:#15803d;}
+.google{background:#dc2626;}
+.google:hover{background:#b91c1c;}
+</style>
+</head>
+<body>
+<main class="max-w-md mx-auto mt-20 bg-white shadow p-6 rounded">
+<h2 class="text-xl font-bold mb-4 text-center">Login</h2>
+<input id="email" type="email" placeholder="Email" class="border w-full mb-3 p-2 rounded"/>
+<input id="password" type="password" placeholder="Password" class="border w-full mb-3 p-2 rounded"/>
+<button class="btn" onclick="login()">Login</button>
+<p class="text-center mt-3 text-gray-500">or</p>
+<a href="http://localhost:4000/auth/google" class="btn google mt-2 text-center block">Login with Google</a>
+</main>
+<script>
+async function login(){
+const email=document.getElementById("email").value,password=document.getElementById("password").value;
+try{
+const r=await axios.post("http://localhost:4000/auth/login",{email,password});
+localStorage.setItem("token",r.data.token);
+alert("Login successful!");window.location="menu.html";
+}catch(e){alert(e.response?.data?.message||"Login failed");}
+}
+</script>
+</body>
+</html>
