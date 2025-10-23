@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Orders - FFJ Eatery</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<style>
+body{background:#f9fafb;font-family:sans-serif;}
+.card{background:white;padding:1rem;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
+</style>
+</head>
+<body>
+<nav class="flex justify-between p-4 bg-green-600 text-white">
+<h1 class="font-bold text-xl">FFJ Eatery</h1><div><a href="menu.html">Menu</a><a href="cart.html">Cart</a></div>
+</nav>
+<main id="orders" class="p-6 grid sm:grid-cols-2 gap-4"></main>
+<script>
+const token=localStorage.getItem("token");
+if(!token)location="login.html";
+axios.get("http://localhost:4000/orders",{headers:{Authorization:`Bearer ${token}`}})
+.then(r=>{
+r.data.forEach(o=>{
+orders.innerHTML+=`<div class='card'><h3 class='font-semibold'>Order #${o._id}</h3>
+<p>Status: ${o.orderStatus}</p><p>Total: ₦${o.totalAmount}</p>
+<button class='bg-blue-600 text-white px-3 py-1 rounded mt-2' onclick="track('${o._id}')">Track</button></div>`;
+});
+});
+function track(id){location="track.html?id="+id;}
+</script>
+</body>
+</html>
