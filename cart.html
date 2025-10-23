@@ -23,7 +23,7 @@ body{background:#f9fafb;font-family:sans-serif;}
 <button class="btn mt-4 w-full" onclick="checkout()">Checkout</button>
 </main>
 <script>
-const API="http://localhost:4000";
+const API="https://ffj-api.onrender.com";
 let cart=JSON.parse(localStorage.getItem("cart")||"[]");
 const div=document.getElementById("cart");
 if(!cart.length){div.innerHTML="<p>Your cart is empty</p>";}else{
