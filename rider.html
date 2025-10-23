@@ -28,10 +28,10 @@ body{font-family:sans-serif;background:#f9fafb;}
 </main>
 
 <!-- Socket.io + Google Maps -->
-<script src="http://localhost:4000/socket.io/socket.io.js"></script>
+<script src="https://ffj-api.onrender.com/socket.io/socket.io.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
 <script>
-const API = "http://localhost:4000";
+const API = "https://ffj-api.onrender.com";
 const token = localStorage.getItem("token");
 if (!token) location = "login.html";
 
