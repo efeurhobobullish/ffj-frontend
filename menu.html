@@ -23,7 +23,7 @@ body{background:#f9fafb;font-family:sans-serif;}
 <main id="menu" class="p-6 grid sm:grid-cols-2 md:grid-cols-3 gap-4"></main>
 
 <script>
-const API="http://localhost:4000";
+const API="https://ffj-api.onrender.com";
 let cart=JSON.parse(localStorage.getItem("cart")||"[]");
 axios.get(`${API}/menu`).then(res=>{
 const div=document.getElementById("menu");
