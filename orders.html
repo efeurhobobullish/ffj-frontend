@@ -18,7 +18,7 @@ body{background:#f9fafb;font-family:sans-serif;}
 <script>
 const token=localStorage.getItem("token");
 if(!token)location="login.html";
-axios.get("http://localhost:4000/orders",{headers:{Authorization:`Bearer ${token}`}})
+axios.get("https://ffj-api.onrender.com/orders",{headers:{Authorization:`Bearer ${token}`}})
 .then(r=>{
 r.data.forEach(o=>{
 orders.innerHTML+=`<div class='card'><h3 class='font-semibold'>Order #${o._id}</h3>
