@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FFJ Eatery - Rider Panel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<style>
+body { background: #f9fafb; font-family: sans-serif; }
+.btn { background: #16a34a; color: white; padding: 8px 12px; border-radius: 6px; }
+.btn:hover { background: #15803d; }
+.card { background: white; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,.1); padding: 1rem; }
+</style>
+</head>
+<body>
+<nav class="flex justify-between items-center p-4 bg-green-600 text-white">
+  <h1 class="font-bold text-xl">FFJ Rider</h1>
+  <button class="bg-red-600 px-3 py-1 rounded" onclick="logout()">Logout</button>
+</nav>
+
+<main class="p-6">
+  <h2 class="text-2xl font-bold mb-4">Assigned Orders</h2>
+  <div id="orders" class="grid sm:grid-cols-2 gap-4"></div>
+
+  <div class="mt-10">
+    <h3 class="font-semibold text-lg mb-2">📍 Live Location Tracking</h3>
+    <p class="text-gray-500 mb-2">Click below to start sending your GPS location to customers.</p>
+    <button class="btn" onclick="startTracking()">Start Tracking</button>
+    <p id="coords" class="text-sm text-gray-600 mt-2"></p>
+  </div>
+</main>
+
+<!-- Socket.IO -->
+<script src="http://localhost:4000/socket.io/socket.io.js"></script>
+<script>
+const API = "http://localhost:4000";
+const token = localStorage.getItem("token");
+if (!token) location = "login.html";
+const socket = io(API);
+let riderId = null;
+let activeOrder = null;
+
+// ✅ Load Rider Profile
+axios.get(API + "/orders", { headers: { Authorization: `Bearer ${token}` } })
+  .then(res => {
+    const data = res.data.filter(o => o.orderStatus !== "delivered");
+    const container = document.getElementById("orders");
+    data.forEach(order => {
+      container.innerHTML += `
+        <div class="card">
+          <h3 class="font-semibold">Order #${order._id}</h3>
+          <p>Status: ${order.orderStatus}</p>
+          <p>Total: ₦${order.totalAmount}</p>
+          ${!order.riderId ? `<button class="btn mt-2" onclick="acceptOrder('${order._id}')">Accept Order</button>` : ''}
+          ${order.orderStatus !== 'delivered' && order.riderId ? `<button class="btn mt-2 bg-blue-600" onclick="markDelivered('${order._id}')">Mark Delivered</button>` : ''}
+        </div>
+      `;
+    });
+  });
+
+function acceptOrder(orderId) {
+  axios.post(API + "/orders/accept", { orderId }, { headers: { Authorization: `Bearer ${token}` } })
+  .then(() => {
+    alert("Order accepted!");
+    activeOrder = orderId;
+    socket.emit("joinAsRider", { orderId });
+  })
+  .catch(err => alert(err.response?.data?.message || "Error"));
+}
+
+function markDelivered(orderId) {
+  axios.put(API + "/orders/" + orderId + "/status", { orderStatus: "delivered" }, { headers: { Authorization: `Bearer ${token}` } })
+  .then(() => alert("Order marked as delivered"));
+}
+
+function startTracking() {
+  if (!activeOrder) return alert("Accept an order first!");
+  if (!navigator.geolocation) return alert("Geolocation not supported.");
+  alert("Tracking started!");
+  navigator.geolocation.watchPosition(
+    pos => {
+      const { latitude, longitude } = pos.coords;
+      document.getElementById("coords").textContent = `Lat: ${latitude.toFixed(5)}, Lng: ${longitude.toFixed(5)}`;
+      socket.emit("riderLocation", { orderId: activeOrder, lat: latitude, lng: longitude });
+    },
+    err => console.error(err),
+    { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+  );
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  location = "login.html";
+}
+</script>
+</body>
+</html>
