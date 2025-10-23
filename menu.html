@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FFJ Eatery - Menu</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<style>
+body{background:#f9fafb;font-family:sans-serif;}
+.card{background:white;padding:1rem;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
+.btn{padding:8px 12px;border-radius:5px;color:white;background:#16a34a;}
+.btn:hover{background:#15803d;}
+</style>
+</head>
+<body>
+<nav class="flex justify-between items-center p-4 bg-green-600 text-white">
+<h1 class="font-bold text-xl">FFJ Eatery</h1>
+<div>
+<a href="index.html">Home</a>
+<a href="cart.html">Cart</a>
+</div>
+</nav>
+<main id="menu" class="p-6 grid sm:grid-cols-2 md:grid-cols-3 gap-4"></main>
+
+<script>
+const API="http://localhost:4000";
+let cart=JSON.parse(localStorage.getItem("cart")||"[]");
+axios.get(`${API}/menu`).then(res=>{
+const div=document.getElementById("menu");
+res.data.forEach(i=>{
+div.innerHTML+=`
+<div class='card'>
+<img src='${i.image_url||"https://via.placeholder.com/200"}' class='w-full h-40 object-cover rounded'/>
+<h3 class='font-semibold mt-2'>${i.name}</h3>
+<p class='text-gray-500 text-sm'>${i.description||''}</p>
+<p class='font-bold text-green-700'>₦${i.price}</p>
+<button class='btn w-full mt-2' onclick='add(${JSON.stringify(i)})'>Add to Cart</button>
+</div>`;
+});
+});
+function add(item){cart.push(item);localStorage.setItem("cart",JSON.stringify(cart));alert(item.name+" added to cart!");}
+</script>
+</body>
+</html>
