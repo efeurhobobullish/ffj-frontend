@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FFJ Eatery - Cart</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<style>
+body{background:#f9fafb;font-family:sans-serif;}
+.btn{padding:8px 12px;border-radius:5px;color:white;background:#16a34a;}
+.btn:hover{background:#15803d;}
+</style>
+</head>
+<body>
+<nav class="flex justify-between items-center p-4 bg-green-600 text-white">
+<h1 class="font-bold text-xl">FFJ Eatery</h1>
+<div><a href="menu.html">Menu</a><a href="orders.html">Orders</a></div>
+</nav>
+<main class="max-w-xl mx-auto bg-white rounded shadow p-6 mt-8">
+<h2 class="text-2xl font-bold mb-4">Your Cart</h2>
+<div id="cart"></div>
+<h3 class="font-semibold mt-4">Total: ₦<span id="total">0</span></h3>
+<button class="btn mt-4 w-full" onclick="checkout()">Checkout</button>
+</main>
+<script>
+const API="http://localhost:4000";
+let cart=JSON.parse(localStorage.getItem("cart")||"[]");
+const div=document.getElementById("cart");
+if(!cart.length){div.innerHTML="<p>Your cart is empty</p>";}else{
+div.innerHTML=cart.map(i=>`<div class='flex justify-between border-b py-2'><span>${i.name}</span><span>₦${i.price}</span></div>`).join('');
+document.getElementById("total").innerText=cart.reduce((a,b)=>a+b.price,0);}
+function checkout(){
+const token=localStorage.getItem("token");if(!token)return alert("Please login first!");
+axios.post(`${API}/orders`,{
+items:cart.map(i=>({name:i.name,price:i.price,quantity:1})),
+totalAmount:cart.reduce((a,b)=>a+b.price,0),
+deliveryAddress:"Default Address"
+},{headers:{Authorization:`Bearer ${token}`}})
+.then(()=>{alert("Order placed!");localStorage.removeItem("cart");window.location="orders.html";});
+}
+</script>
+</body>
+</html>
